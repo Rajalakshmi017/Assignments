@@ -1,0 +1,280 @@
+use ticketBooking;
+insert into customer(customer_id,customer_name,email,phone_number) 
+values
+(1,'harry potter','harry@gmail.com','45454545'),
+(2,'ronald weasley','ron@gmail.com','45454545'),
+(3,'hermione granger','her@gmail.com','45454545'),
+(4,'draco malfoy','drac@gmail.com','45454545'),
+(5,'ginni weasley','ginni@gmail.com','45454545');
+INSERT INTO venue (id, venue_name, address) VALUES
+(1, 'mumbai', 'marol andheri(w)'),
+(2, 'chennai', 'IT Park'),
+(3, 'pondicherry', 'state beach');
+insert into event(event_id,event_name,event_date,event_time,total_seats,available_seats,ticket_price,event_type,venue_id )
+values 
+(1,'Late Ms. Lata Mangeshkar Musical', '2021-09-12','20:00',320,270,600,'concert',3),
+(2,'CSK vs RCB', '2024-04-11','19:30',23000,3,3600,'sports',2),
+(3,'CSK vs RR', '2024-04-19','19:30',23000,10,3400,'sports',2),
+(4,'MI vs KKR', '2024-05-01','15:30',28000,100,8000,'sports',1);
+INSERT INTO booking (num_tickets, total_costs, booking_date, event_event_id, customer_id) VALUES
+(2, 640, '2021-09-12', 1, 1),
+(3, 960, '2021-09-12', 1, 4),
+(3, 10800, '2024-04-11', 2, 1),
+(5, 18000, '2024-04-10', 2, 3),
+(10, 34000, '2024-04-15', 3, 5),
+(4, 32000, '2024-05-01', 3, 2);
+-- ALTER TABLE booking Rename COLUMN even-- t_event_id TO event_id;
+-- 2
+select *from event;
+/* 1	Late Ms. Lata Mangeshkar Musical	2021-09-12	20:00:00	320	270	600	concert	3
+2	CSK vs RCB	2024-04-11	19:30:00	23000	3	3600	sports	2
+3	CSK vs RR	2024-04-19	19:30:00	23000	10	3400	sports	2
+4	MI vs KKR	2024-05-01	15:30:00	28000	100	8000	sports	1
+								*/
+-- 3
+select available_seats from event;
+/* 270
+3
+10
+100*/
+
+-- 4
+select event_name from event where event_name like '%cup%';
+
+-- 5
+select *from event;
+select *from event where ticket_price between 1000 and 2500;
+/*
+null*/
+
+-- 6
+select *from event where event_date between '2024-04-10' and '2024-05-01';
+/*
+2	CSK vs RCB	2024-04-11	19:30:00	23000	3	3600	sports	2
+3	CSK vs RR	2024-04-19	19:30:00	23000	10	3400	sports	2
+4	MI vs KKR	2024-05-01	15:30:00	28000	100	8000	sports	1
+*/
+
+-- 7
+select *from event where event_name like '%cup%';
+-- null
+
+-- 8
+select *from customer order by customer_id limit 2,3;
+/*
+3	hermione granger	her@gmail.com	45454545
+4	draco malfoy	drac@gmail.com	45454545
+5	ginni weasley	ginni@gmail.com	45454545 */
+ -- 9
+ select * from booking where num_tickets>4;
+ /*
+ 5	18000	2024-04-10	2	3
+10	34000	2024-04-15	3	5*/
+
+-- 10
+select *from customer where phone_number like '%000';
+-- null
+
+-- 11
+select *from event where total_seats>15000;
+/* 2	CSK vs RCB	2024-04-11	19:30:00	23000	3	3600	sports	2
+3	CSK vs RR	2024-04-19	19:30:00	23000	10	3400	sports	2
+4	MI vs KKR	2024-05-01	15:30:00	28000	100	8000	sports	1 */
+
+-- 12
+select *from event where event_name not like 'x%' and event_name not like 'y%' and event_name not like 'z%'  ;
+/*
+1	Late Ms. Lata Mangeshkar Musical	2021-09-12	20:00:00	320	270	600	concert	3
+2	CSK vs RCB	2024-04-11	19:30:00	23000	3	3600	sports	2
+3	CSK vs RR	2024-04-19	19:30:00	23000	10	3400	sports	2
+4	MI vs KKR	2024-05-01	15:30:00	28000	100	8000	sports	1
+*/
+
+-- Task 3
+
+-- 1
+select event_name,avg(ticket_price) from event;
+-- Late Ms. Lata Mangeshkar Musical	3900.0000
+
+-- 2
+select sum(ticket_price) as total_revenue from event;
+-- 15600
+
+-- 3
+select*from booking;
+select event_event_id,max(num_tickets) from booking; 
+-- 1	10
+
+-- 4
+select event_event_id,sum(num_tickets) from booking group by event_event_id;
+/*
+1	5
+2	8
+3	14*/
+
+-- 5
+select event_event_id,num_tickets from booking where num_tickets=0;
+-- null
+
+-- 6
+select event_event_id, max(num_tickets) from booking group by event_event_id order by num_tickets desc limit 1,1; 
+-- 2	5
+
+-- 7
+select event_event_id,sum(num_tickets), month(booking_date)  from booking group by event_event_id, month(booking_date);
+/* 1	5	9
+2	8	4
+3	10	4
+3	4	5 */
+
+-- 8
+select v.venue_name,avg(e.ticket_price)
+from venue v
+join event e join e.venue_id=venue.id
+group by v.venue_name;
+
+-- 9
+select event_event_id,sum(num_tickets) from booking group by event_event_id; 
+/*
+1	5
+2	8
+3	14*/
+
+-- 10
+select event_event_id,sum(total_costs), year(booking_date)  from booking group by event_event_id, year(booking_date);
+/*
+1	1600	2021
+2	28800	2024
+3	66000	2024*/
+
+-- 11
+select customer_id,sum(event_event_id) from booking group by customer_id having sum(event_event_id)>1;
+/* 1	3
+2	3
+3	2
+5	3*/
+
+-- 12
+select customer_id,sum(event_event_id),sum(total_costs) from booking group by customer_id;
+/*
+1	3	11440
+2	3	32000
+3	2	18000
+4	1	960
+5	3	34000*/
+
+-- 13
+SELECT venue_id, category, AVG(ticket_price) AS average_ticket_price
+FROM Events
+JOIN Tickets ON Events.event_id = Tickets.event_id
+GROUP BY venue_id, category;
+-- task 4
+-- 1
+SELECT v.venue_name, AVG(IFNULL(e.ticket_price, 0)) AS avg_ticket_price
+FROM venue v
+LEFT JOIN event e ON v.id = e.venue_id
+GROUP BY v.id;
+/*
+mumbai	8000.0000
+chennai	3500.0000
+pondicherry	600.0000*/
+
+-- 1. Calculate the Average Ticket Price for Events in Each Venue Using a Subquery.
+SELECT v.venue_name, AVG(e.ticket_price) AS average_ticket_price
+FROM venue v
+JOIN event e ON v.venue_id = e.venue_id
+GROUP BY v.venue_name;
+
+-- 2. Find Events with More Than 50% of Tickets Sold using subquery.
+SELECT *
+FROM event
+WHERE (total_seats - available_seats) > (total_seats / 2);
+/*
+2	CSK vs RCB	2024-04-11	19:30:00	23000	3	3600	sports	2
+3	CSK vs RR	2024-04-19	19:30:00	23000	10	3400	sports	2
+4	MI vs KKR	2024-05-01	15:30:00	28000	100	8000	sports	1*/
+
+-- 3. Calculate the Total Number of Tickets Sold for Each Event.
+SELECT e.event_name, SUM(b.num_tickets) AS total_tickets_sold
+FROM event e
+LEFT JOIN booking b ON e.event_id = b.event_id
+GROUP BY e.event_name;
+
+-- 4. Find Users Who Have Not Booked Any Tickets Using a NOT EXISTS Subquery.
+SELECT c.*
+FROM customer c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM booking b
+    WHERE b.customer_id = c.customer_id
+);
+-- null
+-- 5. List Events with No Ticket Sales Using a NOT IN Subquery.
+SELECT *
+FROM event
+WHERE event_id NOT IN (
+    SELECT DISTINCT event_id
+    FROM booking
+);
+
+-- 6. Calculate the Total Number of Tickets Sold for Each Event Type Using a Subquery in the FROM Clause.
+SELECT e.event_type, COALESCE(t.total_tickets_sold, 0) AS total_tickets_sold
+FROM (
+    SELECT event_type
+    FROM event
+    GROUP BY event_type
+) e
+LEFT JOIN (
+    SELECT event_type, SUM(num_tickets) AS total_tickets_sold
+    FROM event
+    LEFT JOIN booking ON event.event_id = booking.event_id
+    GROUP BY event_type
+) t ON e.event_type = t.event_type;
+
+-- 7. Find Events with Ticket Prices Higher Than the Average Ticket Price Using a Subquery in the WHERE Clause.
+SELECT *
+FROM event
+WHERE ticket_price > (
+    SELECT AVG(ticket_price)
+    FROM event
+);
+-- 4	MI vs KKR	2024-05-01	15:30:00	28000	100	8000	sports	1
+
+-- 8. Calculate the Total Revenue Generated by Events for Each User Using a Correlated Subquery.
+SELECT c.customer_name, SUM(b.total_cost) AS total_revenue
+FROM customer c
+LEFT JOIN booking b ON c.customer_id = b.customer_id
+GROUP BY c.customer_name;
+
+-- 9. List Users Who Have Booked Tickets for Events in a Given Venue Using a Subquery in the WHERE Clause.
+SELECT DISTINCT c.*
+FROM customer c
+JOIN booking b ON c.customer_id = b.customer_id
+JOIN event e ON b.event_id = e.event_id
+WHERE e.venue_id = (
+    SELECT venue_id
+    FROM venue
+    WHERE venue_name = 'mumbai'
+);
+
+-- 10. Calculate the Total Number of Tickets Sold for Each Event Category Using a Subquery with GROUP BY.
+SELECT e.event_type, COALESCE(SUM(b.num_tickets), 0) AS total_tickets_sold
+FROM event e
+LEFT JOIN booking b ON e.event_id = b.event_id
+GROUP BY e.event_type;
+
+-- 11. Find Users Who Have Booked Tickets for Events in each Month Using a Subquery with DATE FORMAT.
+SELECT DISTINCT c.*
+FROM customer c
+JOIN booking b ON c.customer_id = b.customer_id
+JOIN event e ON b.event_id = e.event_id
+WHERE DATE_FORMAT(b.booking_date, '%Y-%m') = '2024-04';
+
+-- 12. Calculate the Average Ticket Price for Events in Each Venue Using a Subquery
+SELECT v.venue_name, AVG(e.ticket_price) AS average_ticket_price
+FROM venue v
+JOIN (
+    SELECT *
+    FROM event
+) e ON v.venue_id = e.svenue_id
+GROUP BY v.venue_name;
